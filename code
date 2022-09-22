@@ -1,0 +1,131 @@
+/* Copyright (C) 2012-2017 Ultraleap Limited. All rights reserved.*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#include <ws2def.h>
+#pragma comment(lib, "Ws2_32.lib")
+#include <windows.h>
+#include <io.h>
+
+#else
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
+
+#include "LeapC.h"
+#include "ExampleConnection.h"
+
+#define MAX 1024
+#define PORT 30002
+#define SA struct sockaddr
+
+int64_t lastFrameID = 0; //The last frame received
+
+// Function designed for chat between client and server.
+void loopFunction(SOCKET sockfd)
+{
+    char buff[MAX];
+
+    for (;;) {
+
+        LEAP_TRACKING_EVENT* frame = GetFrame();
+        if (frame && (frame->tracking_frame_id > (lastFrameID+20))) {
+            lastFrameID = frame->tracking_frame_id;
+
+            for (uint32_t h = 0; h < frame->nHands; h++) {
+                LEAP_HAND* hand = &frame->pHands[h];
+
+
+                // copy message in the buffer
+                sprintf(buff, "(%0.1f,%0.1f,%0.1f,%0.3f,%0.3f,%0.3f)\n", 
+                    hand->palm.position.x,
+                    hand->palm.position.y,
+                    hand->palm.position.z,
+                    hand->palm.orientation.x,
+                    hand->palm.orientation.y,
+                    hand->palm.orientation.z);
+
+                
+
+
+                printf(buff);
+                printf("\n%i", sockfd);
+                printf("\n%d", strlen(buff));
+
+                // and send that buffer to client
+                send(sockfd, buff, strlen(buff), 0);
+            }
+        }
+    }
+}
+
+int main(int argc, char** argv) {
+    /************** connecting ultraleap **************/
+    OpenConnection();
+    while (!IsConnected)
+        millisleep(100); //wait a bit to let the connection complete
+
+    printf("Connected to Ultraleap.");
+    LEAP_DEVICE_INFO* deviceProps = GetDeviceProperties();
+    if (deviceProps)
+        printf("Using device %s.\n", deviceProps->serial);
+
+    /************** creating socket **************/
+    int sockfd, connfd, len;
+    struct sockaddr_in servaddr, cli;
+
+    // socket create and verification
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        printf("socket creation failed...\n");
+        exit(0);
+    }
+    else
+        printf("Socket successfully created..\n");
+    memset(&servaddr, 0, sizeof(servaddr));
+
+    // assign IP, PORT
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_port = htons(PORT);
+
+    // Binding newly created socket to given IP and verification
+    if ((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0) {
+        printf("socket bind failed...\n");
+        exit(0);
+    }
+    else
+        printf("Socket successfully binded..\n");
+
+    // Now server is ready to listen and verification
+    if ((listen(sockfd, 5)) != 0) {
+        printf("Listen failed...\n");
+        exit(0);
+    }
+    else
+        printf("Server listening..\n"); 
+    len = sizeof(cli);
+
+    // Accept the data packet from client and verification
+    connfd = accept(sockfd, (SA*)&cli, &len);
+    if (connfd < 0) {
+        printf("server accept failed...\n");
+        exit(0);
+    }
+    else
+        printf("server accept the client...\n");
+
+    loopFunction(connfd);
+
+    return 0;
+}
+//End
