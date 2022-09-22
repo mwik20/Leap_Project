@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Ultraleap\LeapSDK\samples\LeapProject.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Ultraleap\LeapSDK\samples\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\LeapProject1\libExampleConnection.dir\$(Configuration)\ExampleConnection.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Object Libraries">
+      <UniqueIdentifier>{CE0456FB-E332-3EF4-BD38-A2C5169ABCF2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ADCA41A7-AF1B-35B3-A337-0F1D98B75A55}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

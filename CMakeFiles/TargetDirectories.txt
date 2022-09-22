@@ -1,0 +1,9 @@
+C:/LeapProject1/CMakeFiles/leapc_example.dir
+C:/LeapProject1/CMakeFiles/libExampleConnection.dir
+C:/LeapProject1/CMakeFiles/CallbackSample.dir
+C:/LeapProject1/CMakeFiles/ImageSample.dir
+C:/LeapProject1/CMakeFiles/PollingSample.dir
+C:/LeapProject1/CMakeFiles/InterpolationSample.dir
+C:/LeapProject1/CMakeFiles/MultiDeviceSample.dir
+C:/LeapProject1/CMakeFiles/ALL_BUILD.dir
+C:/LeapProject1/CMakeFiles/ZERO_CHECK.dir
